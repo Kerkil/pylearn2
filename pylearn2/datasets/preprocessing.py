@@ -1469,11 +1469,13 @@ class LeCunLCN(ExamplewisePreprocessor):
     """
 
     def __init__(self, img_shape, kernel_size=7, batch_size=5000,
-                 threshold=1e-4, channels=None):
+                 threshold=1e-4, channels=None, pre_batch_size=500):
         self._img_shape = img_shape
         self._kernel_size = kernel_size
         self._batch_size = batch_size
         self._threshold = threshold
+        self._pre_batch_size = pre_batch_size
+
         if channels is None:
             self._channels = range(3)
         else:
@@ -1536,7 +1538,7 @@ class LeCunLCN(ExamplewisePreprocessor):
             log.info("LCN processing data from {0} to {1}".format(i, stop))
             transformed = self.transform(convert_axes(
                 dataset.get_topological_view(dataset.X[i:stop, :]),
-                dataset.view_converter.axes, axes))
+                dataset.view_converter.axes, axes),pre_batch_size=self.pre_batch_size)
             transformed = convert_axes(transformed,
                                        axes,
                                        dataset.view_converter.axes)
