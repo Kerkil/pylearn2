@@ -1484,7 +1484,7 @@ class LeCunLCN(ExamplewisePreprocessor):
             else:
                 raise ValueError("channesl should be either a list or int")
 
-    def transform(self, x):
+    def transform(self, x, pre_batch_size):
         """
         .. todo::
 
@@ -1494,13 +1494,23 @@ class LeCunLCN(ExamplewisePreprocessor):
         ----------
         X : WRITEME
             data with axis [b, 0, 1, c]
+        pre_batch_size: batch size for preprocessing for GPU-memory intensive
+            tasks. Currently, pre_batch_size should divide img_shape[0].
         """
         for i in self._channels:
             assert isinstance(i, int)
             assert i >= 0 and i <= x.shape[3]
 
-            x[:, :, :, i] = lecun_lcn(x[:, :, :, i],
-                                      self._img_shape,
+            # the number of preprocessing batches
+            npb = numpy.floor(self._img_shape[0]/float(pre_batch_size))
+
+            for b in numpy.arange(npb):
+                start = b*pre_batch_size
+                stop = (b+1)*pre_batch_size
+                img_shape = self._img_shape
+                img_shape[0] = pre_batch_size
+                x[start:stop, :, :, i] = lecun_lcn(x[start:stop, :, :, i],
+                                      img_shape,
                                       self._kernel_size,
                                       self._threshold)
             return x
