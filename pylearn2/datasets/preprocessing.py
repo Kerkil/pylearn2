@@ -1538,7 +1538,7 @@ class LeCunLCN(ExamplewisePreprocessor):
             log.info("LCN processing data from {0} to {1}".format(i, stop))
             transformed = self.transform(convert_axes(
                 dataset.get_topological_view(dataset.X[i:stop, :]),
-                dataset.view_converter.axes, axes),pre_batch_size=self.pre_batch_size)
+                dataset.view_converter.axes, axes),pre_batch_size=self._pre_batch_size)
             transformed = convert_axes(transformed,
                                        axes,
                                        dataset.view_converter.axes)
